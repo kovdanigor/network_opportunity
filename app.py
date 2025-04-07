@@ -248,81 +248,81 @@ def bipartite_graph():
 
 
 # Реактивные функции для работы с Qdrant
-@reactive.effect
-@reactive.event(input.create_collection)
-def create_qdrant_collection():
-    try:
-        with ui.Progress(min=0, max=4) as p:
-            p.set(0, message="Подключение к Qdrant...")
-            qdrant_client = QdrantClient(
-                url=input.qdrant_url(),
-                api_key=input.qdrant_api_key(),
-            )
+# @reactive.effect
+# @reactive.event(input.create_collection)
+# def create_qdrant_collection():
+#     try:
+#         with ui.Progress(min=0, max=4) as p:
+#             p.set(0, message="Подключение к Qdrant...")
+#             qdrant_client = QdrantClient(
+#                 url=input.qdrant_url(),
+#                 api_key=input.qdrant_api_key(),
+#             )
 
-            p.set(1, message="Загрузка данных...",
-                  detail="Это может занять некоторое время")
-            try:
-                data = processed_data()
-                data = data[['Название региона', 'Данные', 'Опыт работы']].sample(
-                    input.filter_data(), random_state=1)
-                loader = DataFrameLoader(data, page_content_column="Данные")
-                documents = loader.load()
-                splitter = RecursiveCharacterTextSplitter()
-                split_documents = splitter.split_documents(documents)
-            except Exception as e:
-                ui.notification_show(
-                    f"❌ Данные не загружены: {str(e)}", duration=10, type="error")
-                return
+#             p.set(1, message="Загрузка данных...",
+#                   detail="Это может занять некоторое время")
+#             try:
+#                 data = processed_data()
+#                 data = data[['Название региона', 'Данные', 'Опыт работы']].sample(
+#                     input.filter_data(), random_state=1)
+#                 loader = DataFrameLoader(data, page_content_column="Данные")
+#                 documents = loader.load()
+#                 splitter = RecursiveCharacterTextSplitter()
+#                 split_documents = splitter.split_documents(documents)
+#             except Exception as e:
+#                 ui.notification_show(
+#                     f"❌ Данные не загружены: {str(e)}", duration=10, type="error")
+#                 return
 
-            p.set(2, message="Создание коллекции...")
-            collection_name = input.collection_name()
-            if not qdrant_client.collection_exists(collection_name=collection_name):
-                qdrant_client.create_collection(
-                    collection_name=collection_name,
-                    vectors_config=models.VectorParams(
-                        size=384, distance=models.Distance.COSINE)
-                )
+#             p.set(2, message="Создание коллекции...")
+#             collection_name = input.collection_name()
+#             if not qdrant_client.collection_exists(collection_name=collection_name):
+#                 qdrant_client.create_collection(
+#                     collection_name=collection_name,
+#                     vectors_config=models.VectorParams(
+#                         size=384, distance=models.Distance.COSINE)
+#                 )
 
-                p.set(3, message="Векторизация данных...",
-                      detail="Этот этап может быть длительным")
-                create_vector_store(
-                    qdrant_client, collection_name, embeddings, split_documents
-                )
+#                 p.set(3, message="Векторизация данных...",
+#                       detail="Этот этап может быть длительным")
+#                 create_vector_store(
+#                     qdrant_client, collection_name, embeddings, split_documents
+#                 )
 
-                p.set(4, message="Готово!")
-                ui.notification_show(
-                    "✅ Коллекция успешно создана!", duration=5)
-            else:
-                p.set(4, message="Пропуск создания")
-                ui.notification_show(
-                    "ℹ️ Коллекция уже существует!", duration=5)
+#                 p.set(4, message="Готово!")
+#                 ui.notification_show(
+#                     "✅ Коллекция успешно создана!", duration=5)
+#             else:
+#                 p.set(4, message="Пропуск создания")
+#                 ui.notification_show(
+#                     "ℹ️ Коллекция уже существует!", duration=5)
 
-    except Exception as e:
-        print(e)
-        ui.notification_show(
-            f"❌ Ошибка создания: {str(e)}", duration=10, type="error"
-        )
+#     except Exception as e:
+#         print(e)
+#         ui.notification_show(
+#             f"❌ Ошибка создания: {str(e)}", duration=10, type="error"
+#         )
 
 
-@reactive.effect
-@reactive.event(input.delete_collection)
-def delete_qdrant_collection():
-    try:
-        qdrant_client = QdrantClient(
-            url=input.qdrant_url(),
-            api_key=input.qdrant_api_key(),
-        )
+# @reactive.effect
+# @reactive.event(input.delete_collection)
+# def delete_qdrant_collection():
+#     try:
+#         qdrant_client = QdrantClient(
+#             url=input.qdrant_url(),
+#             api_key=input.qdrant_api_key(),
+#         )
 
-        if qdrant_client.collection_exists(collection_name=input.collection_name()):
-            qdrant_client.delete_collection(
-                collection_name=input.collection_name())
-            ui.notification_show("🗑️ Коллекция удалена!", duration=5)
-        else:
-            ui.notification_show("ℹ️ Коллекция не найдена!", duration=5)
+#         if qdrant_client.collection_exists(collection_name=input.collection_name()):
+#             qdrant_client.delete_collection(
+#                 collection_name=input.collection_name())
+#             ui.notification_show("🗑️ Коллекция удалена!", duration=5)
+#         else:
+#             ui.notification_show("ℹ️ Коллекция не найдена!", duration=5)
 
-    except Exception as e:
-        ui.notification_show(
-            f"❌ Ошибка удаления: {str(e)}", duration=10, type="error")
+#     except Exception as e:
+#         ui.notification_show(
+#             f"❌ Ошибка удаления: {str(e)}", duration=10, type="error")
 
 
 # --- Панели ---
