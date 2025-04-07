@@ -23,9 +23,9 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_qdrant import QdrantVectorStore
 from rag_chat import create_vector_store, template, create_retrievers, format_docs
 
-embeddings = HuggingFaceEmbeddings(
-    model_name="sentence-transformers/all-MiniLM-L6-v2"
-)
+# embeddings = HuggingFaceEmbeddings(
+#     model_name="sentence-transformers/all-MiniLM-L6-v2"
+# )
 
 
 # Настройки страницы
@@ -86,24 +86,24 @@ with ui.sidebar(width=400):
                     "bipartite_row", "Выбор строки:", choices=row_choices,
                     selected='Обработанные навыки', width='400px')
 
-    with ui.card(full_screen=False):
-        with ui.accordion(id="acc3", multiple=True, open=False):
-            with ui.accordion_panel('Создание векторной базы'):
-                ui.input_text("collection_name", "Имя коллекции для Qdrant:",
-                              value="defaut_collection", placeholder="Введите имя коллекции")
-                ui.input_text("qdrant_url", "URL кластера:",
-                              value="https://ad51d191-06a9-407d-92e6-6183848591d5.us-east4-0.gcp.cloud.qdrant.io:6333",
-                              placeholder="Введите URL Qdrant кластера")
-                ui.input_password("qdrant_api_key", "API-токен кластера:",
-                                  placeholder="Введите токен")
-                ui.input_slider("filter_data", "Выборка для векторизации:", min=100,
-                                max=2000, value=800, step=100)
+    # with ui.card(full_screen=False):
+    #     with ui.accordion(id="acc3", multiple=True, open=False):
+    #         with ui.accordion_panel('Создание векторной базы'):
+    #             ui.input_text("collection_name", "Имя коллекции для Qdrant:",
+    #                           value="defaut_collection", placeholder="Введите имя коллекции")
+    #             ui.input_text("qdrant_url", "URL кластера:",
+    #                           value="https://ad51d191-06a9-407d-92e6-6183848591d5.us-east4-0.gcp.cloud.qdrant.io:6333",
+    #                           placeholder="Введите URL Qdrant кластера")
+    #             ui.input_password("qdrant_api_key", "API-токен кластера:",
+    #                               placeholder="Введите токен")
+    #             ui.input_slider("filter_data", "Выборка для векторизации:", min=100,
+    #                             max=2000, value=800, step=100)
 
-                with ui.layout_columns(col_widths={"sm": (6, 6)}):
-                    ui.input_action_button(
-                        "create_collection", "Создать коллекцию", class_="btn btn-success btn-sm")
-                    ui.input_action_button(
-                        "delete_collection", "Удалить коллекцию", class_="btn btn-primary btn-sm")
+    #             with ui.layout_columns(col_widths={"sm": (6, 6)}):
+    #                 ui.input_action_button(
+    #                     "create_collection", "Создать коллекцию", class_="btn btn-success btn-sm")
+    #                 ui.input_action_button(
+    #                     "delete_collection", "Удалить коллекцию", class_="btn btn-primary btn-sm")
     ui.hr()
 
 
@@ -940,146 +940,146 @@ with ui.nav_panel("Рекомендация", icon=icon_svg('diagram-project')):
                         )
 
 
-# ------ Chat ---------
+# # ------ Chat ---------
 
-welcome = '''
-🤗 **Добро пожаловать в Networks of Opportunity!**
+# welcome = '''
+# 🤗 **Добро пожаловать в Networks of Opportunity!**
 
-Я — ваш ассистент по анализу вакансий и рынка труда. 
-Могу помочь сравнить специальности, навыки и работодателей, выявить ключевые требования для специальностей, а также понять региональные особенности рынка.'''
+# Я — ваш ассистент по анализу вакансий и рынка труда. 
+# Могу помочь сравнить специальности, навыки и работодателей, выявить ключевые требования для специальностей, а также понять региональные особенности рынка.'''
 
-prompt = ChatPromptTemplate.from_template(template)
-
-
-@reactive.effect
-def update_models():
-    if input.base_url1() == "https://bothub.chat/api/v2/openai/v1":
-        models = ["gpt-3.5-turbo", "gpt-4o",
-                  "gpt-4o-mini",
-                  'o1-mini',
-                  "claude-3.7-sonnet:thinking",
-                  "claude-3.5-haiku",
-                  "deepseek-chat",
-                  "deepseek-r1",
-                  "qwen-2.5-72b-instruct",
-                  "eva-qwen-2.5-32b"]
-        ui.update_selectize("chat_model", choices=models)
-    elif input.base_url1() == "https://openrouter.ai/api/v1":
-        models = ["cognitivecomputations/dolphin3.0-r1-mistral-24b:free",
-                  "deepseek/deepseek-chat:free",
-                  "deepseek/deepseek-r1:free",
-                  "google/gemini-2.0-flash-thinking-exp:free",
-                  'nousresearch/deephermes-3-llama-3-8b-preview:free',
-                  'qwen/qwq-32b:free']
-        ui.update_selectize("chat_model", choices=models)
+# prompt = ChatPromptTemplate.from_template(template)
 
 
-with ui.nav_panel("Чат-бот", icon=icon_svg('robot')):
-    with ui.layout_columns(col_widths=(4, 8)):
-        with ui.card(full_screen=False):
-            ui.card_header("🔎 Фильтры для чат-бота")
-            ui.input_password("chat_token", "API-токен сервиса:",
-                              width='400px',
-                              placeholder="Введите токен")
-            ui.input_selectize("chat_model", "Языковая модель:",
-                               choices=[], width='400px')
-            ui.input_selectize("base_url1", "Базовый URL-адрес сервиса:",
-                               choices=["https://bothub.chat/api/v2/openai/v1",
-                                        "https://openrouter.ai/api/v1"],
-                               selected='https://openrouter.ai/api/v1', width='400px')
-            ui.input_slider("temp", "Температура:", min=0,
-                            max=1, value=0, step=0.1, width='400px')
+# @reactive.effect
+# def update_models():
+#     if input.base_url1() == "https://bothub.chat/api/v2/openai/v1":
+#         models = ["gpt-3.5-turbo", "gpt-4o",
+#                   "gpt-4o-mini",
+#                   'o1-mini',
+#                   "claude-3.7-sonnet:thinking",
+#                   "claude-3.5-haiku",
+#                   "deepseek-chat",
+#                   "deepseek-r1",
+#                   "qwen-2.5-72b-instruct",
+#                   "eva-qwen-2.5-32b"]
+#         ui.update_selectize("chat_model", choices=models)
+#     elif input.base_url1() == "https://openrouter.ai/api/v1":
+#         models = ["cognitivecomputations/dolphin3.0-r1-mistral-24b:free",
+#                   "deepseek/deepseek-chat:free",
+#                   "deepseek/deepseek-r1:free",
+#                   "google/gemini-2.0-flash-thinking-exp:free",
+#                   'nousresearch/deephermes-3-llama-3-8b-preview:free',
+#                   'qwen/qwq-32b:free']
+#         ui.update_selectize("chat_model", choices=models)
 
-        # Правая колонка: Чат-бот
-        with ui.card(full_screen=True):
-            ui.card_header("🤖 Чат-бот")
-            welcome = ui.markdown(welcome)
-            chat = ui.Chat(id="chat", messages=[welcome])
-            chat.ui(placeholder='Введите запрос...',
-                    width='min(850px, 100%)')
 
-        @chat.on_user_submit
-        async def process_chat():
-            user_message = chat.user_input()
+# with ui.nav_panel("Чат-бот", icon=icon_svg('robot')):
+#     with ui.layout_columns(col_widths=(4, 8)):
+#         with ui.card(full_screen=False):
+#             ui.card_header("🔎 Фильтры для чат-бота")
+#             ui.input_password("chat_token", "API-токен сервиса:",
+#                               width='400px',
+#                               placeholder="Введите токен")
+#             ui.input_selectize("chat_model", "Языковая модель:",
+#                                choices=[], width='400px')
+#             ui.input_selectize("base_url1", "Базовый URL-адрес сервиса:",
+#                                choices=["https://bothub.chat/api/v2/openai/v1",
+#                                         "https://openrouter.ai/api/v1"],
+#                                selected='https://openrouter.ai/api/v1', width='400px')
+#             ui.input_slider("temp", "Температура:", min=0,
+#                             max=1, value=0, step=0.1, width='400px')
 
-            if user_message == "Очистить чат":
-                await chat.clear_messages()
-                await chat.append_message_stream('Чат очищен ✅')
-                return
+#         # Правая колонка: Чат-бот
+#         with ui.card(full_screen=True):
+#             ui.card_header("🤖 Чат-бот")
+#             welcome = ui.markdown(welcome)
+#             chat = ui.Chat(id="chat", messages=[welcome])
+#             chat.ui(placeholder='Введите запрос...',
+#                     width='min(850px, 100%)')
 
-            try:
-                # Инициализация прогресс-бара с 2 основными этапами
-                with ui.Progress(min=0, max=5) as p:
-                    p.set(0, message="Начало обработки запроса...")
+#         @chat.on_user_submit
+#         async def process_chat():
+#             user_message = chat.user_input()
 
-                    # Этап 1: Работа с данными и базой
-                    p.set(1, message="Загрузка данных",
-                          detail="Подключение к векторной базе")
-                    qdrant_client = QdrantClient(
-                        url=input.qdrant_url(),
-                        api_key=input.qdrant_api_key(),
-                    )
+#             if user_message == "Очистить чат":
+#                 await chat.clear_messages()
+#                 await chat.append_message_stream('Чат очищен ✅')
+#                 return
 
-                    if not qdrant_client.collection_exists(collection_name=input.collection_name()):
-                        await chat.append_message_stream('Коллекция не создана ❌')
-                        return
+#             try:
+#                 # Инициализация прогресс-бара с 2 основными этапами
+#                 with ui.Progress(min=0, max=5) as p:
+#                     p.set(0, message="Начало обработки запроса...")
 
-                    try:
-                        p.set(2, message="Загрузка данных",
-                              detail="Подготовка документов")
-                        data = processed_data()
-                        data = data[['Название региона', 'Данные', 'Опыт работы']].sample(
-                            input.filter_data(), random_state=1)
-                        loader = DataFrameLoader(
-                            data, page_content_column="Данные")
-                        documents = loader.load()
-                        splitter = RecursiveCharacterTextSplitter()
-                        split_documents = splitter.split_documents(documents)
-                    except:
-                        await chat.append_message(f'Извините, данные не загружены ❌')
-                        return
+#                     # Этап 1: Работа с данными и базой
+#                     p.set(1, message="Загрузка данных",
+#                           detail="Подключение к векторной базе")
+#                     qdrant_client = QdrantClient(
+#                         url=input.qdrant_url(),
+#                         api_key=input.qdrant_api_key(),
+#                     )
 
-                    p.set(3, message="Загрузка данных",
-                          detail="Обращение к векторному хранилищу")
-                    vector_store = QdrantVectorStore(
-                        client=qdrant_client,
-                        collection_name=input.collection_name(),
-                        embedding=embeddings
-                    )
-                    ensemble = create_retrievers(vector_store, split_documents)
+#                     if not qdrant_client.collection_exists(collection_name=input.collection_name()):
+#                         await chat.append_message_stream('Коллекция не создана ❌')
+#                         return
 
-                    p.set(4, message="Генерация ответа",
-                          detail="Инициализация модели")
-                    model = input.chat_model()
-                    temperature = input.temp()
-                    base_url_m = input.base_url1()
-                    api_key = input.chat_token() or None
+#                     try:
+#                         p.set(2, message="Загрузка данных",
+#                               detail="Подготовка документов")
+#                         data = processed_data()
+#                         data = data[['Название региона', 'Данные', 'Опыт работы']].sample(
+#                             input.filter_data(), random_state=1)
+#                         loader = DataFrameLoader(
+#                             data, page_content_column="Данные")
+#                         documents = loader.load()
+#                         splitter = RecursiveCharacterTextSplitter()
+#                         split_documents = splitter.split_documents(documents)
+#                     except:
+#                         await chat.append_message(f'Извините, данные не загружены ❌')
+#                         return
 
-                    try:
-                        llm = ChatOpenAI(
-                            model_name=model,
-                            temperature=temperature,
-                            max_tokens=6000,
-                            base_url=base_url_m,
-                            openai_api_key=api_key
-                        )
+#                     p.set(3, message="Загрузка данных",
+#                           detail="Обращение к векторному хранилищу")
+#                     vector_store = QdrantVectorStore(
+#                         client=qdrant_client,
+#                         collection_name=input.collection_name(),
+#                         embedding=embeddings
+#                     )
+#                     ensemble = create_retrievers(vector_store, split_documents)
 
-                        llm_chain = (
-                            {"context": ensemble | format_docs,
-                                "question": RunnablePassthrough()}
-                            | prompt
-                            | llm
-                            | StrOutputParser()
-                        )
+#                     p.set(4, message="Генерация ответа",
+#                           detail="Инициализация модели")
+#                     model = input.chat_model()
+#                     temperature = input.temp()
+#                     base_url_m = input.base_url1()
+#                     api_key = input.chat_token() or None
 
-                        p.set(5, message="Генерация ответа",
-                              detail="Обработка запроса")
-                        response = llm_chain.invoke(user_message)
-                        await chat.append_message_stream(response)
+#                     try:
+#                         llm = ChatOpenAI(
+#                             model_name=model,
+#                             temperature=temperature,
+#                             max_tokens=6000,
+#                             base_url=base_url_m,
+#                             openai_api_key=api_key
+#                         )
 
-                    except:
-                        await chat.append_message('Ошибка модели, попробуйте изменить фильтры чат-бота ❌')
-                        return
+#                         llm_chain = (
+#                             {"context": ensemble | format_docs,
+#                                 "question": RunnablePassthrough()}
+#                             | prompt
+#                             | llm
+#                             | StrOutputParser()
+#                         )
 
-            except:
-                await chat.append_message('Ошибка при подготовке данных: загрузите данные, настройки векторную базу данных и фильтры чат-бота ❌')
+#                         p.set(5, message="Генерация ответа",
+#                               detail="Обработка запроса")
+#                         response = llm_chain.invoke(user_message)
+#                         await chat.append_message_stream(response)
+
+#                     except:
+#                         await chat.append_message('Ошибка модели, попробуйте изменить фильтры чат-бота ❌')
+#                         return
+
+#             except:
+#                 await chat.append_message('Ошибка при подготовке данных: загрузите данные, настройки векторную базу данных и фильтры чат-бота ❌')
