@@ -106,11 +106,11 @@ with ui.sidebar(width=400):
                              'Профессиональный навык', 
                              'Надпрофессиональный навык']
                 ui.input_selectize(
-                    "onemode_similarity", "Выбор переменной для построения графа:", choices=choices,
+                    "onemode_similarity", "Выбор основной переменной:", choices=choices,
                     selected='Название специальности', width='400px')
                 
                 ui.input_selectize(
-                    "var_broker", "Переменная-брокер:", choices=choices_2,
+                    "var_broker", "Выбор связующей переменной:", choices=choices_2,
                     selected='Обработанные навыки', width='400px')
 
     ui.hr()
