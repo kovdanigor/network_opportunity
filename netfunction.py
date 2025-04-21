@@ -635,3 +635,20 @@ def filter_graph(graph, threshold):
     filtered_graph.remove_nodes_from(isolated_nodes)
 
     return filtered_graph
+
+
+def create_unimodal_matrix(matrix):
+    matrix = matrix.T
+    n = matrix.shape[0]
+    result = np.zeros((n, n))
+
+    for i in range(n):
+        for j in range(i, n):
+            sim = generalized_jaccard(
+                matrix.iloc[i].values, matrix.iloc[j].values)
+            result[i, j] = sim
+            result[j, i] = sim
+
+    np.fill_diagonal(result, 0)
+    return pd.DataFrame(result, index=matrix.index, columns=matrix.index)
+
