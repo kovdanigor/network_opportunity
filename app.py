@@ -549,9 +549,13 @@ with ui.nav_panel("Сеть", icon=icon_svg('circle-nodes')):
                         G = bipartite_graph()
 
                         if input.key_skills():
-                            skills = list(input.key_skills())
-                            G = G.subgraph(
-                                skills + [n for node in skills for n in G.neighbors(node)])
+                            try:
+                                skills = list(input.key_skills())
+                                G = G.subgraph(skills + [n for node in skills for n in G.neighbors(node)])
+                            except:
+                                ui.notification_show("❌ Отфильтрованные навыки отсутствуют в выбранном графе",
+                                                     type="error", duration=10
+                                                     )
 
                         if G is None:
                             ui.notification_show(
